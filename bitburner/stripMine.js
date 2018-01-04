@@ -1,10 +1,14 @@
 target = null
 hosts = null
+
 if ( args.length > 1 ){
     hosts = [args[0]]
     target = args[1]
 } else if ( args.length > 0 ){
     target = args[0]
+} else {
+    targetSelf = true
+    target = 'self'
 }
 
 hostList = [['foodnstuff',
@@ -137,6 +141,10 @@ for( i=0;i<hosts.length;++i){
 
     if ( ! hasRootAccess(host ) ){
         continue
+    }
+
+    if ( targetSelf ){
+        target = host
     }
 
     extract = 'simpleExtract.script'

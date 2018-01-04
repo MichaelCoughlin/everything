@@ -53,6 +53,7 @@ while( toscan.length > 0 ){
                        getServerRam(host)[0] + ',' +
                        hasRootAccess(host) + ',' +
                        getServerNumPortsRequired(host) + ',' +
+                       getServerSecurityLevel(host) + ',' +
                        ' NEWLINE\r\n'
 
     hostTuples.push( [rls, line ] )
@@ -76,7 +77,7 @@ hostTuples.sort()
 
 details = 'hostDetails.txt'
 clear(details);
-write(details, 'Host,Money,Max Money,Growth,Hacking Level,Hack Time,Grow Time,Weaken Time, RAM,Rooted,Ports Required, NEWLINE\r\n', 'a');
+write(details, 'Host,Money,Max Money,Growth,Hacking Level,Hack Time,Grow Time,Weaken Time, RAM,Rooted,Ports Required, Security, NEWLINE\r\n', 'a');
 
 for(i=0;i<hostTuples.length;++i){
     info = hostTuples[i]

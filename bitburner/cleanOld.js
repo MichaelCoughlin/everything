@@ -16,18 +16,18 @@ for( i =0;i<servers.length;++i){
     ram = getServerRam(server)[0]
     ramRatio = ram / maxRam
 
-    tprint( server)
-    tprint( '  ' + server + ' ' + ram + ' ' +  ramRatio)
+    print( server)
+    print( '  ' + server + ' ' + ram + ' ' +  ramRatio)
 
 //    getScriptIncome([scriptname], [hostname/ip], [args...])
 //    getScriptExpGain([scriptname], [hostname/ip], [args...])
 
-    if ( ramRatio < .01){
+    if ( ramRatio < .001){
         tprint( '  Cleanup: ' + server )
         killall( server )
         deleteServer( server )
     } else {
-        tprint( '  Safe: ' + server )
+        print( '  Safe: ' + server )
     }
 }
 

@@ -13,6 +13,7 @@ weakenTime = getWeakenTime(host)
 ram = getServerRam(host)[0]
 root = hasRootAccess(host)
 ports = getServerNumPortsRequired(host)
+security = getServerSecurityLevel(host)
 
 
 
@@ -27,6 +28,7 @@ tprint('  Weaken Time:     ' + weakenTime)
 tprint('  Ram:             ' + ram)
 tprint('  Rooted:          ' + root)
 tprint('  Ports:           ' + ports )
+tprint('  Security:        ' + security )
 tprint('')
 tprint('  Ratio:           ' + round(maxMoneyM * 1000 / hackTime) )
 

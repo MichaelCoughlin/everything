@@ -76,11 +76,13 @@ clear(ordered)
 
 for(i=0;i<hostTuples.length;++i){
     info = hostTuples[i]
-    write(ordered, info[0] + ' ' + info[1] + '\r\n', 'a')
-
-//tprint('  Ratio:           ' + round(maxMoneyM * 1000 / hackTime) )
-
+    host = info[1]
+    hackTime = getHackTime(host)
+    maxMoneyM = round(getServerMaxMoney(host)/1000000)
+    write(ordered, info[0] + ' ' + 
+                   host  + 
+                   ' $' + maxMoneyM + 'M  ' +
+                   round(maxMoneyM * 1000 / hackTime) +
+                   '\r\n', 'a')
 //root = hasRootAccess(host)
-
-
 }

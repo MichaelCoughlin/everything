@@ -1,10 +1,6 @@
-many = false
 id = null
 if ( args.length > 0){
     id = args[0]
-    //if ( args[0] == 'many' ){
-    //    many = true
-    //}
 } 
 
 maxMoney = null
@@ -31,11 +27,14 @@ first = ['foodnstuff',
      'harakiri-sushi',
      'neo-net']
 
-second = ['zer0', 
-           'max-hardware', 
-           'iron-gym',
+second = [ //'zer0', 
+           //'max-hardware', 
+           //'iron-gym',
            'phantasy', 
-           'silver-helix', 'omega-net','crush-fitness', 'johnson-ortho', 'the-hub']
+           //'silver-helix', 
+           'omega-net'
+           //,'crush-fitness', 'johnson-ortho'
+          , 'the-hub']
 
 third = ['comptek', 'netlink']
 
@@ -94,74 +93,45 @@ fulcrumassets = ['fulcrumassets']
 multiplier = 64
 
 
-if ( ! id ) {
+if ( id ) {
+    targets = [id]
+} else {
     if ( hackingLevel < 60 ){
-        id = 'first'
+        targets = ['foodnstuff']
     } else if ( hackingLevel < 300 ) {
-        id = 'second'
-    } else if ( hackingLevel < 400 ) {
-        id = 'third'
+        targets = [ 'phantasy',
+           //'silver-helix', 
+           'omega-net' , 'the-hub']
+        targets= ['the-hub']
     } else if ( hackingLevel < 490 ) {
-        id = 'fourth'
+        //targets = [ 'phantasy','the-hub','catalyst']
+        targets = [ 'the-hub']
     } else if ( hackingLevel < 777 ) {
-        id = 'fifth'
+        targets = ['rho-construction']
+           //, 'millenium-fitness', 'alpha-ent', 'syscore', 'lexo-corp', 'zb-institute']
     } else if ( hackingLevel < 825 ) {
-        id = 'sixth'
+        targets = ['rho-construction']
     } else if ( hackingLevel < 893 ) {
-        id = 'seven'
+        targets = ['zb-def']
     } else if ( hackingLevel < 925 ) {
-        id = 'eight'
+        targets = ['global-pharm']
     } else if ( hackingLevel < 1011 ) {
-        id = 'nine'
+        targets = ['omnitek']
     } else if ( hackingLevel < 1138 ) {
-        id = 'ten'
+        targets = ['b-and-a']
     } else {
-        id = 'eleven'
+        targets = ['megacorp']
     }
+
+    // only choose the first one
+    targets = [targets[0]]
+    
+    // server needs the correct name
+    id = targets[0]
+    
+    tprint('About to farm ' + targets)
 }
 
-if ( id == 'many') {
-    multiplier = 6
-    targets = first.concat( second).concat( third ).concat( fourth )
-} else if ( id == 'first' ){
-    targets = first
-} else if ( id == 'second' ){
-    targets = second
-} else if ( id == 'third' ){
-    targets = third
-} else if ( id == 'fourth' ){
-    targets = fourth
-} else if ( id == 'fifth' ){
-    targets = fifth
-} else if ( id == 'sixth' ){
-    targets = sixth
-} else if ( id == 'seven' ){
-    targets = seven
-} else if ( id == 'eight' ){
-    targets = eight
-} else if ( id == 'nine' ){
-    targets = nine
-} else if ( id == 'ten' ){
-    targets = ten
-} else if ( id == 'eleven' ){
-    targets = eleven
-} else if ( id == 'omnitek' ){
-    targets = omnitek
-} else if ( id == 'banda' ){
-    targets = banda
-} else if ( id == 'sigma' ){
-    targets = sigma
-} else if ( id == 'blade' ){
-    targets = blade
-} else if ( id == 'ecorp' ){
-    targets = ecorp
-} else if ( id == 'megacorp' ){
-    targets = megacorp
-} else if ( id == 'fulcrumassets' ){
-    targets = fulcrumassets
-} else {
-    targets = [id]
-}
 
 
 totalProcesses = targets.length * multiplier
