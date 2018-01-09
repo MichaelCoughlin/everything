@@ -30,7 +30,7 @@ scriptKill(spreadHackScript, host)
 
 sleep(2000) 
 
-if ( host == 'host' ){
+if ( host == 'home' ){
     // save some space to run programs by hand
     reservedRam = 100
 } else {
@@ -55,6 +55,8 @@ money = getServerMoneyAvailable(target)
 // Grow Mode
 if ( money < .9 * maxMoney ){
     print('Entering grow mode')
+
+    sleep(3000) 
 
     // start growers
     mems = getServerRam(host)

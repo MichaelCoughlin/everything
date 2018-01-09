@@ -1,6 +1,8 @@
 target = null
 hosts = null
 
+targetSelf = false
+
 if ( args.length > 1 ){
     hosts = [args[0]]
     target = args[1]
@@ -11,7 +13,8 @@ if ( args.length > 1 ){
     target = 'self'
 }
 
-hostList = [['foodnstuff',
+hostList = [[
+//'foodnstuff',
   'sigma-cosmetics',
   'joesguns',
   'nectar-net',
@@ -100,7 +103,7 @@ if ( !hosts ){
         }
     }
 
-    print(hosts.length + ' available with requiring less than ' + ports + ' ports')
+    print(hosts.length + ' available with requiring at most ' + ports + ' ports')
 }
 
 

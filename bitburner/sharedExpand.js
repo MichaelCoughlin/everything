@@ -148,6 +148,7 @@ if ( maxMoney && maxMoney < money ){
 
 memory = 1024
 memory = 128
+memory = 32
 cost = memory * costPerGB
 
 if ( cost > money ){
