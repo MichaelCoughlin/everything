@@ -30,6 +30,10 @@ while(true){
         tprint('Do not have enough for the next server! ' + round(currentFunds/1000000) 
                                                    + ' < ' + round(nextCost/1000000) )
     }
+    run('purchasePrograms.script',1)
+    sleep( 15000 )
+
     run('ownAll.script',1)
-    sleep( 60000 )
+    sleep( 45000 )
+
 }
