@@ -8,124 +8,62 @@ if ( args.length > 1){
     maxMoney = args[1]
 }
 
-//targets = ['zer0','max-hardware','iron-gym','phantasy','silver-helix']
-//targets = ['zer0','max-hardware']
-
 hackingLevel = getHackingLevel()
-
-
-//, 'comptek']
-
-
-//totalProcesses = 256
-//totalProcesses = 128
-first = ['foodnstuff',
-     'sigma-cosmetics',
-     'joesguns',
-     'nectar-net',
-     'hong-fang-tea',
-     'harakiri-sushi',
-     'neo-net']
-
-second = [ //'zer0', 
-           //'max-hardware', 
-           //'iron-gym',
-           'phantasy', 
-           //'silver-helix', 
-           'omega-net'
-           //,'crush-fitness', 'johnson-ortho'
-          , 'the-hub']
-
-third = ['comptek', 'netlink']
-
-fourth = ['rothman-uni', 'summit-uni', 'catalyst', 'aevum-police']
-
-fifth = ['rho-construction', // 476
-         'millenium-fitness', 'alpha-ent', 'syscore', 'lexo-corp', 'zb-institute']
-
-sixth = ['snap-fitness', // 777
-         'microdyne',
-         'unitalife',
-         'univ-energy',
-         'zb-def',
-         'solaris',
-         'zeus-med',
-         'applied-energetics']
-
-seven = ['global-pharm', // 825
-         'nova-med',
-         'titan-labs',
-         'deltaone',
-         'galactic-cyber',
-         'vitalife',
-         'icarus']
-
-eight = ['taiyang-digital', // 893
-         'infocomm',
-         'helios',
-         'omnia']
-
-nine = [//'aerocorp', // 925
-         'omnitek',
-         //'defcomm',
-         '4sigma',
-         //'stormtech'
-            ]
-
-ten =  [ 'b-and-a', // 1011
-         'blade']
-         //'powerhouse-fitness',
-eleven =['nwo', // 1138
-         'megacorp',
-         'kuai-gong',
-         'ecorp',
-         //'fulcrumtech'
-            ]
-
-omnitek =  [ 'omnitek']
-banda = ['b-and-a']
-blade = ['blade']
-sigma =  [ '4sigma']
-ecorp =  [ 'ecorp']
-megacorp =  [ 'megacorp']
-fulcrumassets = ['fulcrumassets']
 
 multiplier = 64
 
 
+// What number of ports can we take
+programs = [ 'BruteSSH.exe',
+             'FTPCrack.exe',
+             'relaySMTP.exe',
+             'HTTPWorm.exe',
+             'SQLInject.exe',
+             'DeepscanV1.exe',
+             'DeepscanV2.exe']
+
+ports = 0;
+scripts = ls('home')
+for( i=0;i<programs.length;++i){
+    program = programs[i]
+    if ( scripts.indexOf( program ) > -1 ){
+        ports += 1
+    } 
+}
+
 if ( id ) {
     targets = [id]
 } else {
-    if ( hackingLevel < 60 ){
-        targets = ['foodnstuff']
-    } else if ( hackingLevel < 300 ) {
-        targets = [ 'phantasy',
-           //'silver-helix', 
-           'omega-net' , 'the-hub']
-        targets= ['the-hub']
-    } else if ( hackingLevel < 490 ) {
-        //targets = [ 'phantasy','the-hub','catalyst']
-        targets = [ 'the-hub']
-    } else if ( hackingLevel < 777 ) {
-        targets = ['rho-construction']
-           //, 'millenium-fitness', 'alpha-ent', 'syscore', 'lexo-corp', 'zb-institute']
-    } else if ( hackingLevel < 825 ) {
-        targets = ['rho-construction']
-    } else if ( hackingLevel < 893 ) {
-        targets = ['zb-def']
-    } else if ( hackingLevel < 925 ) {
-        targets = ['global-pharm']
-    } else if ( hackingLevel < 1011 ) {
-        targets = ['omnitek']
-    } else if ( hackingLevel < 1138 ) {
-        targets = ['b-and-a']
-    } else {
-        targets = ['megacorp']
-    }
+    candidates = [
+        //['foodnstuff', 1, 0],
+        'harakiri-sushi',
+        'nectar-net',
+        'phantasy',
+        'the-hub',
+        'rho-construction',
+        'zb-def',
+        'global-pharm',
+        'omnitek',
+        'b-and-a',
+        'megacorp'
+    ]
+    targets = ['foodnstuff']
+    for( i=0;i<candidates.length;++i){
+        candidate = candidates[i]
+        requiredPorts = getServerNumPortsRequired(candidate)
 
-    // only choose the first one
-    targets = [targets[0]]
-    
+        if ( requiredPorts > ports ){
+            break
+        }
+
+        requiredLevel = getServerRequiredHackingLevel(candidate)
+        if ( hackingLevel < requiredLevel ){
+            break
+        }
+
+        targets = [candidate]
+    }
+   
     // server needs the correct name
     id = targets[0]
     

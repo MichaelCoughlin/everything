@@ -1,6 +1,12 @@
 host = args[0]
 target = args[1]
 
+if ( ! hasRootAccess(target) ){
+    run('own.script', 1, target )
+    sleep( 20000 )
+}
+
+
 
 balanceScript = 'balance.script'
 
