@@ -1,27 +1,47 @@
-var andThen = function( next ){
-    setTimeout( next, 50 );
-};
 
+var latestMouseMove = Date.now();
 
-var buyWithLimit = function( item, limit ){
-    var owned = selectorContent( '#' + item + 'Owned' );
-    owned = owned && parseInt(owned, 10 )
-    if (! owned || owned < limit){
-        click( item )
-    }
-}
-
-var click = function( item ){
-    var selector = '#' + item + '.thingColorCanAfford';
-    return clickSelector( selector );
-}
+document.addEventListener('mousemove', function(event){
+    latestMouseMove = Date.now();
+});
 
 var selectorContent = function( selector ){
     var element = document.querySelector( selector );
     if ( element && element.offsetParent ){
         return element.textContent;
     }
+    return null;
 };
+
+var andThen = function( next ){
+    setTimeout( next, 50 );
+};
+
+
+var clickSelector = function( selector ){
+    var button = document.querySelector( selector );
+    if ( button && button.offsetParent ){
+        button.click();
+        console.log('Bought ' + selector);
+        return true;
+    }
+    return null;
+};
+
+
+var click = function( item ){
+    var selector = '#' + item + '.thingColorCanAfford';
+    return clickSelector( selector );
+}
+
+var buyWithLimit = function( item, limit ){
+    var owned = selectorContent( '#' + item + 'Owned' );
+    owned = owned && parseInt(owned, 10 )
+    if (! owned || owned < limit){
+        click( item );
+    }
+}
+
 
 var selectorContains = function( selector, text ){
     var content = selectorContent( selector );
@@ -40,34 +60,27 @@ var getWorldNumber = function(){
 
 
 
-var clickSelector = function( selector ){
-    var button = document.querySelector( selector );
-    if ( button && button.offsetParent ){
-        button.click();
-        console.log('Bought ' + selector);
-        return true;
-    }
-    return;
-};
-
 var getTimeToFill = function(){
     var timeString  = selectorContent('#trimpsTimeToFill');
     if ( timeString ){
-        parts = timeString.split(' ');
+        var parts = timeString.split(' ');
         var timePart = parts[parts.length -2];
         return Number(timePart);
     }
 }
 
+buyHousing = false
+buyHousing = true
+
 //var buyStorage = function( ){
 var buyBuildings = function(){
     // #foodBar.percentColorYellow 
     // #foodBar.percentColorRed 
-        click('Forge') || 
-        click('Barn') || 
-        click('Shed') ||
+        // click('Forge') || 
+        // click('Barn') || 
+        // click('Shed') ||
         click('Warpstation') ||
-        (document.querySelector('#Collector') ?
+        (buyHousing && (document.querySelector('#Collector') ?
             buyWithLimit('Collector',100) :
             ( buyWithLimit('Gateway',90) || 
               buyWithLimit('Resort',90) || 
@@ -75,7 +88,7 @@ var buyBuildings = function(){
               buyWithLimit('Mansion',90) ||
               buyWithLimit('House',90) || 
               buyWithLimit('Hut',90)  
-            )) ||
+            ))) ||
               click('Tribute') || 
               (getTimeToFill() > 4.2 && buyWithLimit('Nursery',1450))   || 
 /*
@@ -88,17 +101,20 @@ var buyBuildings = function(){
 }
 
 var lastStation = 0;
+var nextStationDelayMinutes = 5;
 
 var upgradeWarpStation = function(){
     var warpstations = selectorAsInt('#WarpstationOwned');
     //if ( warpstations > 6 ){
     var now = Date.now();
-    // don't upgarde station for at least 30 minutes
-    if ( now - lastStation < 30 * 60 * 1000 ){
+    // don't upgarde station for at least n minutes
+    if ( now - lastStation < nextStationDelayMinutes * 60 * 1000 ){
+    // if ( now - lastStation < 15 * 60 * 1000 ){
+    //if ( now - lastStation < 45 * 60 * 1000 ){
         return;
     }
 
-    if ( warpstations > 10 ){
+    if ( warpstations > 25 ){
     //if ( warpstations > 8 ){
         lastStation = now;
 
@@ -120,11 +136,11 @@ var allocateWorkers = function(){
     }
     
     var maxTimeToFill = 10
-    if (getTimeToFill() < maxTimeToFill && document.querySelector( '#Geneticist.thingColorCanAfford')){
+    //if (getTimeToFill() < maxTimeToFill && document.querySelector( '#Geneticist.thingColorCanAfford')){
         //&&  click('Geneticist'))
         // meh, just call the methods directly
-        addGeneticist( 1 )
-    }
+    //    addGeneticist( 1 )
+    //}
 
     if ( !(  click('Explorer') || click('Trainer') ) ){
         var num = Math.random();
@@ -140,7 +156,8 @@ var allocateWorkers = function(){
         }
     }
 
-    andThen( buyUpgrades );
+    //andThen( buyUpgrades );
+    andThen( buyBuildings );
 }
 
 //gotoTab( 'buildings', buyStorage )
@@ -155,18 +172,23 @@ var allocateWorkers = function(){
 
 
 var buyUpgrades = function(){
-    if( clickSelector('#upgradesHere .thingColorCanAfford.upgradeThing:not(#Gigastation)')){
+    if( false && clickSelector('#upgradesHere .thingColorCanAfford.upgradeThing:not(#Gigastation)')){
         andThen( buyUpgrades, 2000 );
     } else {
         andThen( buyBuildings, 2000 );
     }
 }
 
+var mapDelay = 500;
+//mapDelay = 15000;
+
 //var runMap = function(){}
 mapsPaused = false;
 var runTheMap = function(){
-    if ( mapsPaused ){
-        setTimeout( runTheMap, 5000 );
+    // don't do any map stuff if the mouse is moving
+    var now = Date.now();
+    if ( ( now - latestMouseMove ) < 10000 ||  mapsPaused ){
+        setTimeout( runTheMap, mapDelay );
         return;
     }
 
@@ -195,7 +217,7 @@ var runTheMap = function(){
              mapBonus.offsetParent &&
              mapBonus.textContent === '' ) {
 
-            clickSelector( '#mapsBtn:not(.shrinkBtnText)' );
+            clickSelector( '#mapsBtn:not(.shrinkBtnText) #mapsBtnText' );
          
         }
         console.log( mapBonus.textContent )
@@ -222,7 +244,7 @@ var runTheMap = function(){
             }, 500);
         }
 
-        setTimeout( runTheMap, 15000 );
+        setTimeout( runTheMap, mapDelay );
     }, 500);
 }
 
@@ -273,7 +295,8 @@ var buySomeEquipment = function(){
 
 
 
-buyUpgrades()
+//buyUpgrades()
+buyBuildings()
 buySomeEquipment()
 runTheMap()
 
