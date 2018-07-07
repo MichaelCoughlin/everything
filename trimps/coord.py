@@ -30,14 +30,19 @@ def info( trimpCount, level ):
     print ' ', formatNumber(trimpCount), level, formatNumber(multiplier_for_trimps( trimpCount, level )), formatNumber( actualTrimpsUsed )
 
 def formatNumber( num ):
+    if num > 10 **15:
+        return str(round(num / 10 ** 15, 2 )) + 'Qa'
+    if num > 10 **12:
+        return str(round(num / 10 ** 12, 2 )) + 'T'
     if num > 10 **9:
         return str(round(num / 10 ** 9, 2 )) + 'B'
     return str(round(num / 10 ** 6, 2 )) + 'M'
 
-for trimpCount in [ 10**8, 2.5* 10**8, 10**9, 5 * 10 ** 9, 10**10, 35 * 10 **9, 75 * 10 **9, 10 ** 11  ]:
+#for trimpCount in [ 10**8, 2.5* 10**8, 10**9, 5 * 10 ** 9, 10**10, 35 * 10 **9, 75 * 10 **9, 10 ** 11  ]:
+for trimpCount in [ 10**11, 2.5* 10**11, 10**12 ]:
     #print str(trimpCount / 10 ** 6 ) + 'M'
     print formatNumber(trimpCount )
-    for level in range(9,14):
+    for level in range(23,26):
         info( trimpCount, level )
 
 '''

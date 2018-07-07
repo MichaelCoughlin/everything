@@ -1,0 +1,32 @@
+2.71M
+Drones are 212.82% more productive.
+Queens are 180.90% more productive.
+Nests are 153.77% more productive.
+Greater Queens are 130.70% more productive.
+Hives are 111.10% more productive.
+Hive Queens are 94.43% more productive.
+Hive Empresses are 80.27% more productive.
+You own 2.71538 million meat mutations.
+
+
+
+12.71M
+Drones are 245.01% more productive.
+Queens are 208.26% more productive.
+Nests are 177.02% more productive.
+Greater Queens are 150.47% more productive.
+Hives are 127.90% more productive.
+Hive Queens are 108.71% more productive.
+Hive Empresses are 92.40% more productive.
+You own 12.7153 million meat mutations.
+
+
+
+Hatchery Mutation
+Increases larvae production by 542.56%.
+You own 2.66439 million hatchery mutations.
+
+
+Hatchery Mutation
+Increases larvae production by 610.26%.
+You own 12.6643 million hatchery mutations.

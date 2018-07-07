@@ -1,6 +1,12 @@
 
 var latestMouseMove = Date.now();
 
+var secondsSinceLatestMouseMove = function(){
+    var now = Date.now();
+    return (now - latestMouseMove ) / 1000;
+};
+
+
 document.addEventListener('mousemove', function(event){
     latestMouseMove = Date.now();
 });
@@ -12,9 +18,21 @@ var selectorContent = function( selector ){
     }
     return null;
 };
+var selectorContains = function( selector, text ){
+    var content = selectorContent( selector );
+    return content && content.indexOf( text ) > -1;
+}
 
-var andThen = function( next ){
-    setTimeout( next, 50 );
+var andThen = function( next, delay ){
+    var after = function(){
+
+        if (pauseAutomation || secondsSinceLatestMouseMove < 10){
+            andThen(next);
+        } else {
+            next();
+        }
+    };
+    setTimeout( after, delay || 50 );
 };
 
 
@@ -79,7 +97,7 @@ var buyBuildings = function(){
         // click('Forge') || 
         // click('Barn') || 
         // click('Shed') ||
-        click('Warpstation') ||
+        buyWithLimit('Warpstation',260) ||
         (buyHousing && (document.querySelector('#Collector') ?
             buyWithLimit('Collector',100) :
             ( buyWithLimit('Gateway',90) || 
@@ -90,7 +108,8 @@ var buyBuildings = function(){
               buyWithLimit('Hut',90)  
             ))) ||
               click('Tribute') || 
-              (getTimeToFill() > 4.2 && buyWithLimit('Nursery',1450))   || 
+              // (getTimeToFill() > 28.2 && buyWithLimit('Nursery',650))   || 
+              (getTimeToFill() > 28.2 && buyWithLimit('Nursery',600))   || 
 /*
 */
         click('Gym');
@@ -102,6 +121,7 @@ var buyBuildings = function(){
 
 var lastStation = 0;
 var nextStationDelayMinutes = 5;
+//nextStationDelayMinutes = 2;
 
 var upgradeWarpStation = function(){
     var warpstations = selectorAsInt('#WarpstationOwned');
@@ -142,7 +162,8 @@ var allocateWorkers = function(){
     //    addGeneticist( 1 )
     //}
 
-    if ( !(  click('Explorer') || click('Trainer') ) ){
+    // if ( !(  click('Explorer') || click('Trainer') || click('Magmamancer') ) ){
+    if ( !(  click('Explorer') || buyWithLimit('Trainer', 1300) || click('Magmamancer') ) ){
         var num = Math.random();
         
         if ( num < .3 ){
@@ -182,6 +203,33 @@ var buyUpgrades = function(){
 var mapDelay = 500;
 //mapDelay = 15000;
 
+
+var zoneStartTime = Date.now();
+var zoneNumber = 0
+
+var secondsInZone = function(){
+    return (Date.now() - zoneStartTime)/ 1000;
+};
+
+var isZone = () => {
+    var worldName = document.querySelector( '#worldName' );
+    return worldName && worldName.textContent == 'Zone';
+};
+
+var updateWorldInfo = () => {
+    if ( isZone() ){
+        var worldNumber = document.querySelector( '#worldNumber' );
+        var number = parseInt(worldNumber && worldNumber.textContent, 10);
+
+        if (number && number != zoneNumber){
+            zoneNumber = number;
+            zoneStartTime = Date.now();
+        }
+    }
+    setTimeout(updateWorldInfo, 1000);
+};
+
+
 //var runMap = function(){}
 mapsPaused = false;
 var runTheMap = function(){
@@ -192,8 +240,17 @@ var runTheMap = function(){
         return;
     }
 
-    var worldName = document.querySelector( '#worldName' );
-    var isZone = worldName && worldName.textContent == 'Zone';
+    var worldNumber = document.querySelector( '#worldNumber' );
+    var is200 = worldNumber && worldNumber.textContent == '200';
+    var is229 = worldNumber && worldNumber.textContent == '229';
+
+
+    // 'advMapsPreset2'
+    // wait after hitting 200
+    if (is229){
+        setTimeout( runTheMap, mapDelay );
+        return;
+    }
 
     /*
     if ( isZone ){
@@ -208,7 +265,7 @@ var runTheMap = function(){
 
     var mapCreateButton = document.querySelector('#mapCreateBtn');
     var isMapList = mapCreateButton && mapCreateButton.offsetParent;
-    if ( !isMapList && isZone && getWorldNumber() > 15 ){
+    if ( !isMapList && isZone() && getWorldNumber() > 15 ){
 
         var selector = '#mapBonus';
         var mapBonus = document.querySelector( selector );
@@ -224,10 +281,25 @@ var runTheMap = function(){
     }
 
     setTimeout( function(){
+        var mapLevel = document.querySelector('#mapLevelInput');
+        var existingMaps = 0;
+        if(mapLevel && mapLevel.value){
+            var maps = document.querySelectorAll('.thingOwned.mapLevel');
+            maps.forEach((map) => {
+                if (map.textContent === 'Level ' + mapLevel.value){
+                    existingMaps += 1;
+                }
+            });
+        }
+
         var createButton = document.querySelector('#mapCreateBtn');
-        if ( createButton && createButton.offsetParent ){
+        if ( existingMaps > 2 ){
+            clickSelector( '#selectMapBtn' );
+        } else if ( createButton && createButton.offsetParent ){
             setTimeout( function(){
-                clickSelector( '#mapCreateBtn' );
+
+                clickSelector('#mapLevelContainer .incrementBtn');
+                clickSelector('#mapCreateBtn');
                 setTimeout( function(){
                     clickSelector( '#selectMapBtn' );
 
@@ -249,6 +321,7 @@ var runTheMap = function(){
 }
 
 var buySomeEquipment = function(){
+    return;
     if ( pauseAutomation ){
         andThen( buySomeEquipment );
         return;
@@ -280,6 +353,7 @@ var buySomeEquipment = function(){
         } else {
             target = 3;
         }
+        target = 2;
 
         if ( owned && owned < target ){
             clickSelector('#equipmentHere #' + equipment + '.thingColorCanAfford');
@@ -291,14 +365,98 @@ var buySomeEquipment = function(){
 };
 
 
+var clearMaps = () => {
+    var maps = document.querySelectorAll('.thingOwned.mapLevel');
+    maps.forEach((map) => {
+        map.click();
+
+        clickSelector('#recycleMapBtn');
+    });
+
+}
+
+var allowSetFormation = true;
+var setFormationFunc = () => {
+    if(allowSetFormation && document.querySelector('#formation0.formationStateEnabled')){
+        clickSelector('#formation4');
+    }
+
+    setTimeout( setFormationFunc, 60 * 1000 );
+}
+
+
+MAP_FOREVER = '.settingBtn0';
+MAP_ITEMS = '.settingBtn2';
+MAP_ANY = '.settingBtn3';
+
+TOGGLE_REPEAT = '#togglerepeatUntil';
+
+
+// Click the button until 
+var setRepeatUntilFunc = function(text){
+    if (!selectorContains( TOGGLE_REPEAT, 'Repeat')){
+        return false;
+    }
+    for(var i=0;i<6;++i){
+        if (!selectorContains( TOGGLE_REPEAT, text)){
+            clickSelector(TOGGLE_REPEAT);
+        }
+    }
+    return true;
+};
+
+var MINUTES_OF_FARMING = 40;
+
+var ignoreZone = -1;
+
+var updateRepeatSetting = () => {
+
+    if ( !zoneNumber || zoneNumber === ignoreZone ){
+    } else if (secondsInZone() > 4 * 60 * MINUTES_OF_FARMING) {
+        // stuck in zone?
+    
+    } else if ( zoneNumber < 199 ){
+        setRepeatUntilFunc('Items');
+    // } else if ( zoneNumber === 199 || zoneNumber === 200 ){
+    //     setRepeatUntilFunc('Forever');
+    // } else if ( zoneNumber === 228 || zoneNumber === 229 ){
+    } else if ( zoneNumber === 199 || 
+                zoneNumber === 200 || 
+                zoneNumber >= 228){
+
+        // document.querySelectorAll('#badGuyName .Corruption');
+
+        // SPIRE
+        // MAGMA
+        if (secondsInZone() > 60 * MINUTES_OF_FARMING) {
+            // Scrying + back to world
+            clickSelector('#formation4');
+            setRepeatUntilFunc('Any');
+        } else {
+            // Double Damage + Farm
+            clickSelector('#formation2');
+            setRepeatUntilFunc('Forever');
+        }
+    } else {
+        setRepeatUntilFunc('Any');
+    }
+
+    andThen( updateRepeatSetting, 30 * 1000 );
+};
 
 
 
 
+//andThen
+
+
+setFormationFunc()
 //buyUpgrades()
 buyBuildings()
 buySomeEquipment()
 runTheMap()
+updateWorldInfo();
+updateRepeatSetting();
 
 
 units = {'k': 3,
@@ -330,3 +488,6 @@ units = {'k': 3,
 
 
 //mapBonus
+
+// ArtisanistryOwned
+// ArtisanistryPrice
