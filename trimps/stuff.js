@@ -97,7 +97,7 @@ var buyBuildings = function(){
         // click('Forge') || 
         // click('Barn') || 
         // click('Shed') ||
-        buyWithLimit('Warpstation',260) ||
+        buyWithLimit('Warpstation',(zoneNumber && zoneNumber < 210) ? 200 : 260) ||
         (buyHousing && (document.querySelector('#Collector') ?
             buyWithLimit('Collector',100) :
             ( buyWithLimit('Gateway',90) || 
@@ -109,7 +109,7 @@ var buyBuildings = function(){
             ))) ||
               click('Tribute') || 
               // (getTimeToFill() > 28.2 && buyWithLimit('Nursery',650))   || 
-              (getTimeToFill() > 28.2 && buyWithLimit('Nursery',600))   || 
+              // (getTimeToFill() > 28.2 && buyWithLimit('Nursery',600))   || 
 /*
 */
         click('Gym');
@@ -121,7 +121,8 @@ var buyBuildings = function(){
 
 var lastStation = 0;
 var nextStationDelayMinutes = 5;
-//nextStationDelayMinutes = 2;
+nextStationDelayMinutes = 2;
+nextStationDelayMinutes = 1;
 
 var upgradeWarpStation = function(){
     var warpstations = selectorAsInt('#WarpstationOwned');
@@ -213,7 +214,7 @@ var secondsInZone = function(){
 
 var isZone = () => {
     var worldName = document.querySelector( '#worldName' );
-    return worldName && worldName.textContent == 'Zone';
+    return worldName && (worldName.textContent == 'Zone' || worldName.textContent.indexOf('Spire') > -1);
 };
 
 var updateWorldInfo = () => {
@@ -233,6 +234,8 @@ var updateWorldInfo = () => {
 //var runMap = function(){}
 mapsPaused = false;
 var runTheMap = function(){
+    updateWorldInfo();
+
     // don't do any map stuff if the mouse is moving
     var now = Date.now();
     if ( ( now - latestMouseMove ) < 10000 ||  mapsPaused ){
@@ -244,13 +247,6 @@ var runTheMap = function(){
     var is200 = worldNumber && worldNumber.textContent == '200';
     var is229 = worldNumber && worldNumber.textContent == '229';
 
-
-    // 'advMapsPreset2'
-    // wait after hitting 200
-    if (is229){
-        setTimeout( runTheMap, mapDelay );
-        return;
-    }
 
     /*
     if ( isZone ){
@@ -265,7 +261,7 @@ var runTheMap = function(){
 
     var mapCreateButton = document.querySelector('#mapCreateBtn');
     var isMapList = mapCreateButton && mapCreateButton.offsetParent;
-    if ( !isMapList && isZone() && getWorldNumber() > 15 ){
+    if ( !isMapList && isZone() && getWorldNumber() > 151 || ((getWorldNumber() % 20) === 19)){
 
         var selector = '#mapBonus';
         var mapBonus = document.querySelector( selector );
@@ -274,6 +270,7 @@ var runTheMap = function(){
              mapBonus.offsetParent &&
              mapBonus.textContent === '' ) {
 
+            // TODO clic the abandon soliders button if it's one of the special zones
             clickSelector( '#mapsBtn:not(.shrinkBtnText) #mapsBtnText' );
          
         }
@@ -298,7 +295,7 @@ var runTheMap = function(){
         } else if ( createButton && createButton.offsetParent ){
             setTimeout( function(){
 
-                clickSelector('#mapLevelContainer .incrementBtn');
+                // clickSelector('#mapLevelContainer .incrementBtn');
                 clickSelector('#mapCreateBtn');
                 setTimeout( function(){
                     clickSelector( '#selectMapBtn' );
@@ -321,7 +318,6 @@ var runTheMap = function(){
 }
 
 var buySomeEquipment = function(){
-    return;
     if ( pauseAutomation ){
         andThen( buySomeEquipment );
         return;
@@ -405,45 +401,139 @@ var setRepeatUntilFunc = function(text){
     return true;
 };
 
+var isOmnipotrimp = () => {
+    return selectorContains('#badGuyName', 'Omnipotrimp');
+}
+
+var isCorruptedCell = () => {
+    return !! document.querySelector('#badGuyName .Corruption');
+}
+var isVoidMap = () => {
+    return !!document.querySelector('.voidCell');
+}
+
 var MINUTES_OF_FARMING = 40;
+MINUTES_OF_FARMING = 15;
 
 var ignoreZone = -1;
+
+var suppressItems = false;
+
+var magmaMode = false;
+
+var START_ANY = 231;
+var START_FARMING = 299;
+var REALLY_FARM = 320;
 
 var updateRepeatSetting = () => {
 
     if ( !zoneNumber || zoneNumber === ignoreZone ){
-    } else if (secondsInZone() > 4 * 60 * MINUTES_OF_FARMING) {
+    // } else if (secondsInZone() > 4 * 60 * 60) {
         // stuck in zone?
     
-    } else if ( zoneNumber < 199 ){
-        setRepeatUntilFunc('Items');
-    // } else if ( zoneNumber === 199 || zoneNumber === 200 ){
-    //     setRepeatUntilFunc('Forever');
-    // } else if ( zoneNumber === 228 || zoneNumber === 229 ){
-    } else if ( zoneNumber === 199 || 
-                zoneNumber === 200 || 
-                zoneNumber >= 228){
-
-        // document.querySelectorAll('#badGuyName .Corruption');
-
+    } else if ( zoneNumber === 300 ||zoneNumber === 299 ||zoneNumber === 199 || zoneNumber === 200 ){
         // SPIRE
-        // MAGMA
-        if (secondsInZone() > 60 * MINUTES_OF_FARMING) {
-            // Scrying + back to world
-            clickSelector('#formation4');
-            setRepeatUntilFunc('Any');
+
+        // double dmg
+        clickSelector('#formation2');
+
+        var secondsOfFarming = MINUTES_OF_FARMING * 60;
+        if (zoneNumber >= 299 ){
+            // farm muchly for second spire
+            secondsOfFarming = 60 * 60 * 8;
+        }
+
+        if (isZone() && (zoneNumber >= 299)) {
+            clickSelector('#formation1');
         } else {
             // Double Damage + Farm
             clickSelector('#formation2');
+        }
+
+
+        if (secondsInZone() > secondsOfFarming) {
+            // Scrying + back to world
+            setRepeatUntilFunc('Any');
+        } else {
+            // Double Damage + Farm
             setRepeatUntilFunc('Forever');
         }
+
+    //     setRepeatUntilFunc('Forever');
+    // } else if ( zoneNumber === 228 || zoneNumber === 229 ){
+    //} else if ( zoneNumber === 199 || 
+    //            zoneNumber === 200 || 
+    //            zoneNumber >= 228){
+    } else if ( zoneNumber < START_ANY && ! suppressItems ){
+        setRepeatUntilFunc('Items');
+    } else if (zoneNumber > START_FARMING){
+
+        var secondsOfFarming = MINUTES_OF_FARMING * 60;
+        // secondsOfFarming = 4 * 60 * 60;
+        if (zoneNumber > REALLY_FARM){
+            secondsOfFarming = 40 * 60;
+        } else if (zoneNumber === 299){
+            secondsOfFarming = 4 * 60 * 60;
+        }
+
+        var farmOverrides = {};
+        farmOverrides[299] = 60 * 60 * 4;
+        farmOverrides[300] = 60 * 60 * 4;
+        // farmOverrides[229] = 60 * 60 * 4;
+        secondsOfFarming = farmOverrides[zoneNumber] || secondsOfFarming;
+        var minutesOfFarming = secondsOfFarming * 60;
+        var minutesInZone = secondsInZone() * 60;
+
+        var stuckAfterFarming = minutesInZone > minutesOfFarming + 30 * 60;
+
+        if (isZone() && (zoneNumber % 100) != 0) {
+            // if (stuckAfterFarming && (isOmnipotrimp() || isCorruptedCell())){
+            // }
+            if (false){
+                // Health
+                clickSelector('#formation1');
+            } else {
+                // Scrying
+                clickSelector('#formation4');
+            }
+        } else {
+            // Double Damage + Farm
+            clickSelector('#formation2');
+        }
+
+        // MAGMA
+        if (secondsInZone() > secondsOfFarming) {
+            // Scrying + back to world
+            setRepeatUntilFunc('Any');
+        } else {
+            // Double Damage + Farm
+            setRepeatUntilFunc('Forever');
+        }
+    } else if (zoneNumber > 298){
+        setRepeatUntilFunc('Any');
+
+        if (isZone()) {
+            // scrying
+            clickSelector('#formation4');
+        }else {
+            // double dmg
+            clickSelector('#formation2');
+        }
+
     } else {
         setRepeatUntilFunc('Any');
+
+        // scrying
+        clickSelector('#formation4');
     }
 
-    andThen( updateRepeatSetting, 30 * 1000 );
+    // andThen( updateRepeatSetting, 30 * 1000 );
+    andThen( updateRepeatSetting, 1 * 1000 );
 };
 
+var getFuelInfo = function() {
+    $('#generatorFuelOwned').textContent
+};
 
 
 
@@ -491,3 +581,5 @@ units = {'k': 3,
 
 // ArtisanistryOwned
 // ArtisanistryPrice
+
+
